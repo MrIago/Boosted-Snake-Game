@@ -6,15 +6,16 @@ pygame.init()
 
 # Cores e configurações iniciais
 white = (255, 255, 255)
-red = (213, 50, 80)
-green = (0, 255, 0)
-blue = (50, 153, 213)
-yellow = (255, 255, 102)
+red = (255, 0, 128)  # Rosa neon
+green = (0, 255, 217)  # Ciano neon
+blue = (0, 24, 47)  # Azul escuro TRON
+yellow = (255, 217, 0)  # Amarelo neon
 black = (0, 0, 0)
+neon_blue = (0, 148, 255)  # Azul neon
 dis_width = 600
 dis_height = 400
 dis = pygame.display.set_mode((dis_width, dis_height))
-pygame.display.set_caption('Snake Game')
+pygame.display.set_caption('Jogo da Cobra')
 clock = pygame.time.Clock()
 
 snake_block = 10
@@ -51,9 +52,9 @@ def gameLoop():
     while not game_over:
 
         while game_close == True:
-            dis.fill(blue)
-            display_text("You Lost! Press Q-Quit or C-Play Again", red, dis_width / 6, dis_height / 3)
-            display_text("Your Score: " + str(length_of_snake - 1), yellow, 0, 0)
+            dis.fill(black)  # Fundo preto
+            display_text("Você Perdeu! Q-Sair ou C-Jogar Novamente", neon_blue, dis_width / 6, dis_height / 3)
+            display_text("Sua Pontuação: " + str(length_of_snake - 1), green, 0, 0)
             pygame.display.update()
 
             for event in pygame.event.get():
@@ -94,8 +95,18 @@ def gameLoop():
             game_close = True
         x1 += x1_change
         y1 += y1_change
-        dis.fill(blue)
+        dis.fill(black)  # Fundo preto para estilo TRON
+        
+        # Desenhar grade TRON
+        for i in range(0, dis_width, snake_block):
+            pygame.draw.line(dis, (0, 40, 80), (i, 0), (i, dis_height))
+        for i in range(0, dis_height, snake_block):
+            pygame.draw.line(dis, (0, 40, 80), (0, i), (dis_width, i))
+        
+        # Desenhar comida com brilho
         pygame.draw.rect(dis, green, [foodx, foody, snake_block, snake_block])
+        pygame.draw.rect(dis, white, [foodx + 2, foody + 2, snake_block - 4, snake_block - 4])
+        
         snake_head = [x1, y1]
         snake_list.append(snake_head)
         if len(snake_list) > length_of_snake:
@@ -105,14 +116,19 @@ def gameLoop():
             if x == snake_head:
                 game_close = True
 
-        for x in snake_list:
-            pygame.draw.rect(dis, black, [x[0], x[1], snake_block, snake_block])
+        # Desenhar cobra com efeito de rastro
+        for i, x in enumerate(snake_list):
+            color_intensity = 255 * (i / len(snake_list))
+            snake_color = (0, color_intensity, 255)  # Gradiente de azul
+            pygame.draw.rect(dis, snake_color, [x[0], x[1], snake_block, snake_block])
+            pygame.draw.rect(dis, white, [x[0] + 2, x[1] + 2, snake_block - 4, snake_block - 4])
 
-        display_text("Speed: " + str(round(speed, 2)), yellow, 0, 20)
-        display_text("Boost: " + ("Available" if boost_available else "Not Available"), red if boost_available else white, 0, 40)
+        display_text("Velocidade: " + str(round(speed, 2)), neon_blue, 0, 20)
+        display_text("Boost: " + ("Disponível" if boost_available else "Indisponível"), 
+                    green if boost_available else white, 0, 40)
         if boost_active:
             remaining_time = round(boost_end_time - time.time(), 1)
-            display_text("Boost Active! Time remaining: " + str(remaining_time), green, 0, 60)
+            display_text("Boost Ativo! Tempo restante: " + str(remaining_time), green, 0, 60)
 
         pygame.display.update()
 
